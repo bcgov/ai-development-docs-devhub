@@ -1,0 +1,20 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ai-tooling-for-development
+  title: AI Tooling For Development
+  description: Quick links, guidelines, and security requirements related to
+    AI-assisted development.
+  annotations:
+    github.com/project-slug: bcgov/ai-development-docs-devhub
+    backstage.io/techdocs-ref: dir:.
+    bcgovpubcode.gov.bc.ca/ministry: CITZ
+    bcgovpubcode.gov.bc.ca/product_name: AI Tooling For Development Documentation
+    bcgovpubcode.gov.bc.ca/product_description: Quick links, guidelines, and
+      security requirements related to AI-assisted development.
+    bcgovpubcode.gov.bc.ca/hosting_platform: Not-Applicable
+    backstage.io/source-template: template:default/docs-template
+spec:
+  type: documentation
+  lifecycle: production
+  owner: group:default/devhub-ai-development-docs
