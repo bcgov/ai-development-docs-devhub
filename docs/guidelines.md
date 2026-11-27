@@ -24,7 +24,11 @@ AI tools are assistants, not software engineers. In B.C. government development,
 See [AI Tooling: Reviewing AI-Assisted Work](security/reviewing.md) for requirements related to reviewing and testing AI-generated output.
 
 !!! info "Note on legacy modernization"
-    There are pilots underway utilizing small teams and AI to rewrite extremely large legacy systems.  Noting that the teams doing this are much smaller than those who originally wrote them, and their timeline is shorter, developers and product owners in these pilots opt to 'accept the risk' in transforming more code than they deem possible to review.  What's critical is that tests are verified to be deterministic and have the correct assertions, and that everyone involved, including the client business area, understands the risks involved in deploying code to production that has not been verified by a human.  This is not a recommended practice for net new applications, and comes with associated risks.
+    Teams are piloting the use of AI to rewrite very large legacy systems. These teams are much smaller than the original development teams and work on shorter timelines. As a result, developers and product owners in these pilots may choose to accept the risk of rewriting more code than they can review.
+    
+    Before deployment, teams must confirm that tests produce consistent results under the same conditions and that test assertions check the expected behaviour. Everyone involved, including the client business area, must understand the risks of deploying code without human review.
+    
+    This approach is not recommended for new applications and carries additional risks.
 
 ---
 

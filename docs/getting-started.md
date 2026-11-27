@@ -19,10 +19,12 @@ Use the tools and services below to support AI-assisted development in the B.C. 
 
 ## Mandatory reading
 
-Before you use AI tools for development or in an application, review the following resources. They outline security requirements, general guidance and considerations to help you determine whether AI is suitable for your use case.
+Before you use AI tools for development or in an application, review the following resources. They explain security requirements, general guidance and considerations to help you determine whether AI is suitable for your use case.
 
 - [AI tooling security requirements](security/index.md)
 - [General guidelines for AI-assisted development](guidelines.md)
+
+<!-- ## Availability eligibility UPDATE WHEN AVAILABLE-->
 
 ## Access, licensing and setup
 
@@ -32,14 +34,12 @@ After you review the mandatory reading and confirm your need for AI tools with y
 - Submit a ticket ___here___ to request access to GitHub Copilot
 - For information about accessing AI Services Hub, see ___this___ 
 -->
-
-- GitHub Copilot is currently available only to individuals in the pilot cohort. A broader rollout is tentatively planned for later in 2026, pending approval.
-
-    We will share further updates in the Developer Community on Microsoft Teams, on this page and in a future email from the DevX team.
+!!! info "GitHub Copilot is currently available only to individuals in the pilot cohort" 
+  A broader rollout is tentatively planned for later in 2027, pending approval. We will share further updates in the Developer Community on Microsoft Teams, on this page and in a future email from the DevX team.
 
 - Follow the setup instructions provided by each tool vendor (for example, the GitHub Copilot documentation)
 
-## Help available
+## Support available
 
 Contact the appropriate team if you have issues with access or setup:
 
@@ -61,6 +61,17 @@ Use the resources below to learn the basics, explore advanced features and get t
 - [GitHub Copilot docs](https://docs.github.com/en/copilot)
 - [GitHub Copilot for beginners playlist](https://www.youtube.com/watch?v=n0NlxUyA7FI&list=PL0lo9MOBetEFc6rN_y9-YKA3plCSUb1NP)
 - [GitHub YouTube: GitHub Copilot CLI for beginners playlist](https://www.youtube.com/watch?v=BDxRhhs36ns&list=PL0lo9MOBetEHvO-spzKBAITkkTqv4RvNl)
+
+<!-- UPDATE WHEN AVAILABLE
+### Training sessions and community events
+
+Add confirmed training sessions and community events. Include:
+- Intended audience
+- Topics covered
+- Dates and times
+- Delivery channel or location
+- Registration details, if needed
+-->
 
 ### Usage and token budget
 

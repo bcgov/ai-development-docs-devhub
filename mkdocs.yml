@@ -5,7 +5,7 @@ repo_url: "https://github.com/bcgov/ai-development-docs-devhub"
 edit_uri: edit/main/docs
 nav:
     - Introduction: index.md
-    - Getting started: getting-started.md
+    - Getting started and support: getting-started.md
     - General guidelines: guidelines.md
     - Security:
         - Overview: security/index.md
@@ -14,9 +14,7 @@ nav:
         - Permission defaults: security/permissions.md
         - Extensions, skills, hooks and MCP servers: security/extensions.md
         - Reviewing AI-assisted work: security/reviewing.md
-    - Configuration: configuration.md
-    - Tips and tricks: tips-and-tricks.md
-    - About us: about-us.md
+  
 plugins:
     - techdocs-core
     - git-revision-date-localized
