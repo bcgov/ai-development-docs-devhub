@@ -1,3 +1,5 @@
 patcher.py
 test_patcher.py
 site/
+tmp/.htmltest/refcache.json
+tmp/.htmltest/htmltest.log

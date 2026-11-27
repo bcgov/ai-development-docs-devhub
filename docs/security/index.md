@@ -1,0 +1,241 @@
+---
+title: AI tooling security guidelines and requirements
+description: Security guidelines and requirements for developers using AI tooling and coding agents.
+---
+
+# AI tooling security guidelines and requirements
+
+!!! info "This guide changes as tools evolve"
+    AI development tools change quickly. When the approved tools catalogue or the standard setup differs from an example in this guide, follow the catalogue.
+
+This page is the main source of guidance for using AI coding tools safely in B.C. government development. Each section provides a brief recommendation and links to a companion page with more information.
+
+!!! note "Understand what is mandatory"
+    This guidance includes hard controls, policy requirements and recommended practices and the text identifies each type. B.C. government-managed environments enforce hard controls. For example, Bypass Approvals and Autopilot are disabled (see [Permission defaults](permissions.md)). 
+    
+    You must follow policy requirements even when no technical control enforces them. For example, you may only use AI tools with information classified as Protected A or lower. Recommended practices are strong defaults that you can apply to your repositories, credentials and workstation. If you are unsure, choose the stricter option.
+
+## What is approved today
+
+- **Approved coding assistant**: GitHub Copilot, for developers. Other Copilot-branded products, preview features, models and third-party extensions are not automatically approved
+- **Approved information classification**: Up to and including Protected A. Do not put Protected B or higher information (citizen personal information, health or financial records, production data, credentials, or unpublished vulnerability details) into any AI tool. See the [B.C. Information Security Classification](https://www2.gov.bc.ca/gov/content/governments/services-for-government/information-management-technology/information-security/information-security-classification) standards
+
+Coding agents can do more than provide autocomplete suggestions. Depending on their configuration they can read repositories, edit files, run terminal commands, access networks, call external tools and act through authenticated command-line clients. 
+
+Different chat modes provide different levels of access: 
+
+- Ask mode reads information
+- Plan mode proposes actions before making changes
+- Full agent mode that can edit files and run commands 
+
+Choose the mode with the least access needed for the tasks. The goal is to give agents enough context and access to complete the work while:
+
+- Preventing mistakes from affecting unrelated systems or production environments
+- Keeping information within approved tools and normal review and release controls in force. 
+
+You remain responsible for the code you commit and the systems you operate.
+
+## Start with the standard setup
+
+A wizard or standard repository setup is not yet available. Until one is, use the internal [AI Security Quickstart](https://github.com/bcgov-c/AI-security-quickstart) template as a foundation. This private `bcgov-c` template provides:
+
+- A secure-by-default `AGENTS.md` 
+- Path-scoped security instructions
+- A reusable `/security-review` command 
+- Review, dependency and documentation skills 
+- APM-managed guardrail hooks
+- GitHub security automation, including Dependabot, CodeQL, dependency review, secret-scanning push protection and a `CODEOWNERS` + branch-protection ruleset
+
+Review: [Getting started](../getting-started.md) for access, licensing and training information.
+
+## Give agents the context they need
+
+For each task, an agent relies on the information available in its current session, including the task, repository, conversation and connected tools. It lacks the tacit knowledge your team built through incidents, support calls and design decisions. As a results, it may make a technically sound change that is clearly wrong to someone who has that context. For example, it might remove an unused database migration that an external service still needs.
+
+Before assigning a significant task provide:
+
+- The intended outcome
+- Relevant architecture and constraints
+- Non-goals 
+- Components that must not change
+- Acceptance criteria
+- Security and privacy requirements 
+- Testing and documentation expectations
+
+Repository instructions, specifications and architecture decision records help close this gap for agents and future contributors. AI models also have training data cutoffs, so provide current version-specific documentation instead of relying on the model's memory. 
+
+See: [Reviewing AI-assisted work](reviewing.md).
+
+## Keep information in the approved tool and classification
+
+Use GitHub Copilot only with information classified as Protected A or lower. This includes most internal source code that developers already use with GitHub Copilot. Provide only the information needed for the task. Use synthetic or de-identified data instead of real records. Never give an agent credentials or access that the task does not require.
+
+Review: [Information and classification](information.md).
+
+## Contain the agent through least privilege and sandboxing
+
+Use both of these controls to contain mistakes and prompt injection payloads:
+
+- **Least privilege** limits what the agent is authorized to do against real systems. It runs commands using the identity active in your terminal. If your terminal contains an `oc login` token or active production session, the agent may be able to do everything you can, including taking actions that cannot be reversed. Do not give the agent credentials when it does not need them. Have it propose changes and use reviewed CI/CD processes for deployments. If the task requires access, use a mediated tool, an approved MCP server or a narrowly scoped non-production identity keychains to act as you
+- **Sandboxing** limits what the agent's process can access on your workstation. Without sandboxing, an agent may be able to read anything your account can access, including information classified above Protected A. It may also use credential stores such as`~/.ssh`, `~/.kube`, `~/.azure` and keychains to act as you. Enable IDE and CLI sandboxing and keep credential stores outside the agent's reach
+
+Review: [Contain the agent](containment.md).
+
+## Set safe permission defaults
+
+B.C. government-managed environments disable Bypass Approvals and Autopilot because a single global bypass could allow an agent run destructive tools without review. To reduce unnecessary prompts, automatically approve only read-only commands that you approved configuration identifies as safe. Continue to require approval for risky actions. A copy-and-paste `.vscode/settings.json` is provided.
+
+Review: [Permission defaults](permissions.md).
+
+## Vet extensions, skills, hooks, and MCP servers
+
+An agent trusts the code and content in instructions, prompts, skills, custom agents, tools, hooks, plugins and MCP servers. These components may contain malicious instructions that a person could miss during review. An update may also introduce malicious instructions without warning. Review each component as you would review a dependency. Pin versions, use APM to distribute approved components and enable guardrail hooks. Treat MCP servers as potential intermediaries rather than a simple as API definition.  
+
+Review: [Extensions, skills, hooks, and MCP servers](extensions.md).
+
+## Give agents clear and limited tasks
+
+An effective request combines the context described above with clear boundaries. Include:
+
+- Acceptance criteria
+- Non-goals
+- Dependency and version constraints
+- Tests to add or preserve
+- Documentation changes 
+- Commands the agent may run
+
+=== "Prefer: bounded and specific"
+
+    > Implement the validation described in issue 123. Preserve the existing API contract, do not change the database schema, add negative authorization tests, run the repository's standard checks and update the API documentation.
+
+=== "Avoid: vague"
+
+    > Fix validation.
+
+For large changes, ask the agent to inspect and propose a plan. Review its assumptions and identify missing context before it proceeds. Ask it to implement the change in small, reviewable increments and run deterministic checks. Inspect the final diff and generated artifacts.
+
+## Review AI-assisted work before release
+
+When an agent writes most of the code, automate important checks such as: 
+
+- Dependency and licence scanning
+- A reusable security-review pass over the diff and tests
+- Concrete security requirements enforced through CI
+- Docs-currency rule (documentation checks) that require updates to ship with the change
+
+Require human review for sensitive code involving authentication, authorization, cryptography, payments, privacy-sensitive flows and infrastructure. Use `CODEOWNERS` and branch protection to create a CI/CD control that the agent cannot bypass. AI reviewers do not count as the required human approval.
+
+See [Reviewing AI-assisted work](reviewing.md).
+
+## Use extra care in public repositories
+
+B.C. government publishes software to support reuse, transparency and community contribution. Continue to design code for public release where appropriate.
+
+Before publishing or moving a change to a public repository, confirm that it does not contain:
+
+- [ ] Secrets or credentials
+- [ ] Real production or personal information
+- [ ] Private incident or vulnerability details that are not ready for disclosure
+- [ ] Internal-only operational endpoints
+- [ ] Privileged configuration
+- [ ] Information from a private repository that has not been approved for release
+- [ ] Generated fixtures, logs, issue text or documentation that contains sensitive values
+
+Review the [Digital Code of Practice: Work in the open](https://digital.gov.bc.ca/policies-standards/dcop/open/). Public repositories should also provide a `SECURITY.md` with a private vulnerability-reporting route.
+
+## Report problems early
+
+Report any of the following:
+
+- Sensitive information sent to the wrong service, model, extension or repository
+- Credentials exposed to an agent or committed to source control
+- Unexpected access to a cluster, cloud environment, database or external service
+- An agents actions that affect production or finances
+- Suspicious or misrepresented extensions, plugins, skills or MCP servers
+- Unsafe generated code that reached a shared branch
+- A bypass of required permission or review controls
+
+Use the following reporting channels:
+
+- Security or privacy incidents: Call 250-387-70000 and choose option 3. Examples include credentials exposed to an agent, real data sent to the wrong service or unexpected effects on a production environment 
+- Developer platform and tooling help: <Developer.Experience@gov.bc.ca>.
+
+<!--
+!!! note "AI initiative intake: link coming"
+    A single intake form for AI initiatives is being finalized; this guide will link to it for registering and reviewing new AI tooling. Until then, use the developer platform contact above.
+-->
+
+Report problems as soon as possible. Early reporting allows teams to revoke credentials, review access, remove generated artifacts and improve protections for other teams. Teams use reports to improve safeguards, not assign blame. Report near misses as well as incidents.
+
+## Glossary
+
+APM (Microsoft Agent Package Manager)
+:   A package manager that distributes and governs approved agent components (instructions, skills, prompts, hooks, and MCP declarations) with source allow-lists, content-integrity checks, and version pinning.
+
+MCP (Model Context Protocol)
+:   A protocol that lets an agent connect to external "servers" which expose tools, resources, and prompts. An MCP server can run locally on your machine or as a remote service.
+
+Prompt injection
+:   An attack where untrusted content the agent reads (a web page, issue, dependency, or tool result) carries hidden instructions that steer the agent into doing something you did not ask for.
+
+RBAC (Role-Based Access Control)
+:   Granting permissions through roles scoped to a namespace, project, or resource group, rather than to a person's broad standing access.
+
+PIM (Privileged Identity Management)
+:   A Microsoft Entra feature that grants privileged roles just-in-time and time-limited, instead of leaving them always on.
+
+OIDC (OpenID Connect)
+:   An identity protocol used here so CI/CD can authenticate to a cloud with short-lived, workload-scoped tokens instead of stored long-lived credentials.
+
+OWASP
+:   The Open Worldwide Application Security Project, source of the widely used Top 10 and application-security verification standards referenced below.
+
+## Reference index
+
+### This guide
+
+- [Information and classification](information.md)
+- [Contain the agent](containment.md)
+- [Permission defaults](permissions.md)
+- [Extensions, skills, hooks, and MCP servers](extensions.md)
+- [Reviewing AI-assisted work](reviewing.md)
+- [Getting started](../getting-started.md)
+- [AI Security Quickstart (bcgov-c, internal)](https://github.com/bcgov-c/AI-security-quickstart)
+
+### B.C. government
+
+- [Information Security Classification](https://www2.gov.bc.ca/gov/content/governments/services-for-government/information-management-technology/information-security)
+- [Policy on the use of generative AI](https://digital.gov.bc.ca/ai/gen-ai-policy/)
+- [Digital Code of Practice: Work in the open](https://digital.gov.bc.ca/policies-standards/dcop/open/)
+- [B.C. Developer Guide: Security best practices for applications](https://developer.gov.bc.ca/docs/default/component/bc-developer-guide/security/best-practices-for-apps/)
+
+### GitHub and VS Code
+
+- [GitHub Copilot model hosting](https://docs.github.com/en/copilot/reference/ai-models/model-hosting)
+- [GitHub Copilot content exclusion](https://docs.github.com/en/copilot/concepts/context/content-exclusion)
+- [GitHub Copilot customization reference](https://docs.github.com/en/copilot/reference/customization-cheat-sheet)
+- [GitHub MCP allowlist enforcement](https://docs.github.com/en/copilot/reference/mcp-allowlist-enforcement)
+- [GitHub local sandbox configuration](https://docs.github.com/en/copilot/how-tos/cloud-and-local-sandboxes/configuring-local-sandbox-settings)
+- [GitHub enterprise-managed Copilot settings](https://docs.github.com/en/copilot/how-tos/administer-copilot/manage-for-enterprise/manage-agents/configure-enterprise-managed-settings)
+- [VS Code approvals and permissions](https://code.visualstudio.com/docs/agents/approvals)
+- [VS Code trust and safety](https://code.visualstudio.com/docs/agents/concepts/trust-and-safety)
+- [VS Code enterprise AI settings](https://code.visualstudio.com/docs/enterprise/ai-settings)
+- [VS Code Dev Containers](https://code.visualstudio.com/docs/devcontainers/containers)
+
+### Platform access
+
+- [OpenShift RBAC](https://docs.redhat.com/en/documentation/openshift_container_platform/4.20/html/authentication_and_authorization/using-rbac)
+- [Azure RBAC best practices](https://learn.microsoft.com/en-us/azure/role-based-access-control/best-practices)
+- [Microsoft Entra Privileged Identity Management](https://learn.microsoft.com/en-us/entra/id-governance/privileged-identity-management/pim-configure)
+- [Authenticate GitHub Actions to Azure with OpenID Connect](https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure-openid-connect)
+
+### Standards and supporting guidance
+
+- [Microsoft Agent Package Manager](https://github.com/microsoft/apm)
+- [APM policy guidance](https://microsoft.github.io/apm/enterprise/apm-policy/)
+- [MCP Security Checklist (SlowMist)](https://github.com/slowmist/MCP-Security-Checklist)
+- [OWASP Application Security Verification Standard](https://owasp.org/www-project-application-security-verification-standard/)
+- [OWASP Top 10](https://owasp.org/www-project-top-ten/)
+- [OWASP GenAI Security Project](https://genai.owasp.org/)
+- [NIST Secure Software Development Framework](https://csrc.nist.gov/pubs/sp/800/218/final)
+- [NIST AI RMF Generative AI Profile](https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence)
